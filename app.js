@@ -1,6 +1,11 @@
+require("dotenv").config();
+const mongoose=require("mongoose");
 const express=require("express");
 const app=express();
 const port=5000;
+
+mongoose.connect(process.env.MONGOURL)
+.then(console.log("MongoDB Connected...!"));
 
 const sellerRouter=require("./routes/seller");
 const companyRouter=require("./routes/company");
