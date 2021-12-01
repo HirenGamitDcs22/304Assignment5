@@ -19,6 +19,26 @@ router.post("/addseller", (req,res)=>{
 //fetch seller details based on product name
 
 //update seller (add/remove products)
+router.put("/updateseller/add/:sname",async(req,res)=>{
+    const sname=req.params.sname;
+    const pid=req.body.pid;
+    const sellerdata= await sellerModel.findOneAndUpdate(
+        {name:sname},
+        {$push: {product_ids:pid}},
+        {new:true}
+    );
+    return res.json({data:sellerdata});
+});
+router.put("/updatecompany/remove/:sname",async(req,res)=>{
+    const sname=req.params.sname;
+    const pid=req.body.pid;
+    const sellerdata= await sellerModel.findOneAndUpdate(
+        {name:sname},
+        {$pull: {product_ids:pid }},
+        {new:true}
+    );
+    return res.json({data:sellerdata});
+});
 
 //delete seller
 router.delete("/delseller/:id",async(req,res)=>{

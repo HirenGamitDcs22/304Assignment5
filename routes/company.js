@@ -18,23 +18,38 @@ router.post("/addcompany",(req,res)=>{
 });
 
 //fetch company details based on product name
-router.post("/retrieve/:pname",(req,res)=>{
+router.get("/retrieve/:pname",async(req,res)=>{
     const pname=req.params.pname;
-    const product = productModel.find({},{title:pname});
-    return res.json({data:product});
-});
-router.post("/retrieve/:pname", (req,res)=>{
-    const pname=req.params.pname;
-    const product= productData.filter((p)=>p.title === pname);
-    const companyid=product.map((p)=>p.company_id);
-    const company=companyData.filter((c)=>c.company_id === String(companyid));
+    const product =await productModel.find({title:pname});
+    const cid=product.map((p)=>p.company_id);
+    const company=await companyModel.find(
+        {company_id:cid}
+    );
+    if(company.length===0){
+        return res.json({data:"Company not found "});
+    }
     return res.json({data:company});
 });
 
 //update company (add/remove products)
-router.put("/updatecompany/:cname",(req,res)=>{
+router.put("/updatecompany/add/:cname",async(req,res)=>{
     const cname=req.params.cname;
-    const companydata=companyData.filter((c)=>c.name === cname)
+    const pid=req.body.pid;
+    const companydata= await companyModel.findOneAndUpdate(
+        {name:cname},
+        {$push: {product_ids:pid}},
+        {new:true}
+    );
+    return res.json({data:companydata});
+});
+router.put("/updatecompany/remove/:cname",async(req,res)=>{
+    const cname=req.params.cname;
+    const pid=req.body.pid;
+    const companydata= await companyModel.findOneAndUpdate(
+        {name:cname},
+        {$pull: {product_ids:pid }},
+        {new:true}
+    );
     return res.json({data:companydata});
 });
 
