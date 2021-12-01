@@ -17,6 +17,18 @@ router.post("/addseller", (req,res)=>{
 });
 
 //fetch seller details based on product name
+router.get("/retrieve/:pname",async(req,res)=>{
+    const pname=req.params.pname;
+    const product =await productModel.find({title:pname});
+    const sid=product.map((p)=>p.seller_id);
+    const seller=await sellerModel.find(
+        {seller_id:sid}
+    );
+    if(seller.length===0){
+        return res.json({data:"Seller not found "});
+    }
+    return res.json({data:seller});
+});
 
 //update seller (add/remove products)
 router.put("/updateseller/add/:sname",async(req,res)=>{
@@ -29,7 +41,7 @@ router.put("/updateseller/add/:sname",async(req,res)=>{
     );
     return res.json({data:sellerdata});
 });
-router.put("/updatecompany/remove/:sname",async(req,res)=>{
+router.put("/updateseller/remove/:sname",async(req,res)=>{
     const sname=req.params.sname;
     const pid=req.body.pid;
     const sellerdata= await sellerModel.findOneAndUpdate(
