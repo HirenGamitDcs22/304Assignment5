@@ -44,21 +44,25 @@ router.get("/retrieve/seller/:sname", async(req,res)=>{
 });
 
 //update product (add/remove category)
-router.put("/updateproduct/:pname", async(req,res)=>{
-    const pname=req.params.pname;
-    const price=req.body.price;
-    const cat=req.body.category;
-    const cid=req.body.company_id;
-    const sid=req.body.seller_id;
-    const productdata=productModel.findOneAndUpdate(
-        {title:pname},
-        {price:price},
-        {category:category.push(cat)},
-        {company_id:cid},
-        {seller_id:seller_id.push(sid)},
-        {new: true}
+router.put("/updateseller/add/:sname",async(req,res)=>{
+    const sname=req.params.sname;
+    const pid=req.body.pid;
+    const sellerdata= await sellerModel.findOneAndUpdate(
+        {name:sname},
+        {$push: {product_ids:pid}},
+        {new:true}
     );
-    return res.json({data:productdata});
+    return res.json({data:sellerdata});
+});
+router.put("/updateseller/remove/:sname",async(req,res)=>{
+    const sname=req.params.sname;
+    const pid=req.body.pid;
+    const sellerdata= await sellerModel.findOneAndUpdate(
+        {name:sname},
+        {$pull: {product_ids:pid }},
+        {new:true}
+    );
+    return res.json({data:sellerdata});
 });
 
 //delete product
