@@ -2,6 +2,8 @@ const express=require("express");
 const router=express.Router();
 
 const productModel=require("../models/products");
+const sellerModel=require("../models/seller");
+const companyModel=require("../models/company");
 
 router.get("/",(req,res)=>res.json({data:"Product Home!"}));
 
@@ -13,31 +15,60 @@ router.get("/list", async(req,res)=>{
     return res.json({data:productList});
 });
 
+//add new Product
 router.post("/addproduct", (req,res)=>{
-    //const {newProduct}=req.body;
-    //const msg=productModel.create(newProduct);
-    return res.json({data:req.body});
+    const {newProduct}=req.body;
+    productModel.create(newProduct);
+    return res.json({data:"Product Add SuccessFully...!"});
 });
 
-router.post("/retrieve/:pname", (req,res)=>{
-    const pname=req.params.pname;
-    const product= productData.filter((p)=>p.title === pname);
-    const companyid=product.map((p)=>p.company_id);
-    const company=companyData.filter((c)=>c.company_id === String(companyid));
-    return res.json({data:company});
+//fetch all products of a company
+router.get("/retrieve/company/:cname",async(req,res)=>{
+    const cname=req.params.cname;
+    const company=await companyModel.find({name:cname},{company_id:true});
+    const companyid=company.map((c)=>c.company_id);
+    const  productList= await productModel.find({company_id:companyid});
+    if(company.length===0){
+        return res.json({data:"Company not found"})
+    }
+    return res.json({data:productList});
 });
 
+//fetch all products of a seller
+router.get("/retrieve/seller/:sname", async(req,res)=>{
+    const sname=req.params.sname;
+    const seller= await sellerModel.find({name:sname});
+    const sellerid=seller.map((s)=>s.seller_id);
+    const productList=await productModel.find({seller_id:sellerid});
+    return res.json({data:productList});
+});
+
+//update product (add/remove category)
 router.put("/updateproduct/:pname", async(req,res)=>{
     const pname=req.params.pname;
-    const companydata=productModel.findOneAndUpdate();
-    return res.json({data:companydata});
+    const price=req.body.price;
+    const cat=req.body.category;
+    const cid=req.body.company_id;
+    const sid=req.body.seller_id;
+    const productdata=productModel.findOneAndUpdate(
+        {title:pname},
+        {price:price},
+        {category:category.push(cat)},
+        {company_id:cid},
+        {seller_id:seller_id.push(sid)},
+        {new: true}
+    );
+    return res.json({data:productdata});
 });
 
-router.delete("/delproduct/:id",(req,res)=>{
-    const cid=req.params.id;
-    const companydata=companyData.filter((c)=>c.company_id === cid)
-    const index=companyData.indexof(companydata);
-    return res.json({data:index});
+//delete product
+router.delete("/delproduct/:id",async(req,res)=>{
+    const pid=req.params.id;
+    const delProduct= await productModel.findOneAndDelete({product_id:pid});
+    if(delProduct){
+        return res.json({data:"Peoduct Deleted Successfully...!"});
+    }
+    return res.json({data:"Product Can't Delete."});
 });
 
 
