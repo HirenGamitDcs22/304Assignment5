@@ -21,6 +21,9 @@ router.post("/addcompany",(req,res)=>{
 router.get("/retrieve/:pname",async(req,res)=>{
     const pname=req.params.pname;
     const product =await productModel.find({title:pname});
+    if(product.length===0){
+        return res.json({data:"Product not found "});
+    }
     const cid=product.map((p)=>p.company_id);
     const company=await companyModel.find(
         {company_id:cid}

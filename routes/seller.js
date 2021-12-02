@@ -2,7 +2,7 @@ const express=require("express");
 const router=express.Router();
 
 const sellerModel=require("../models/seller");
-
+const productModel=require("../models/products")
 router.get("/",(req,res)=>res.json({data:"Seller Home!"}));
 
 router.get("/list",(req,res)=>{
@@ -20,6 +20,9 @@ router.post("/addseller", (req,res)=>{
 router.get("/retrieve/:pname",async(req,res)=>{
     const pname=req.params.pname;
     const product =await productModel.find({title:pname});
+    if(product.length===0){
+        return res.json({data:"Product not found "});
+    }
     const sid=product.map((p)=>p.seller_id);
     const seller=await sellerModel.find(
         {seller_id:sid}
@@ -31,21 +34,21 @@ router.get("/retrieve/:pname",async(req,res)=>{
 });
 
 //update seller (add/remove products)
-router.put("/updateseller/add/:sname",async(req,res)=>{
-    const sname=req.params.sname;
+router.put("/updateseller/add/:id",async(req,res)=>{
+    const id=req.params.id;
     const pid=req.body.pid;
     const sellerdata= await sellerModel.findOneAndUpdate(
-        {name:sname},
+        {seller_id:id},
         {$push: {product_ids:pid}},
         {new:true}
     );
     return res.json({data:sellerdata});
 });
-router.put("/updateseller/remove/:sname",async(req,res)=>{
-    const sname=req.params.sname;
+router.put("/updateseller/remove/:id",async(req,res)=>{
+    const id=req.params.id;
     const pid=req.body.pid;
     const sellerdata= await sellerModel.findOneAndUpdate(
-        {name:sname},
+        {seller_id:id},
         {$pull: {product_ids:pid }},
         {new:true}
     );
