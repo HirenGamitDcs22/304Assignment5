@@ -7,7 +7,8 @@ const productModel=require("../models/products");
 router.get("/",(req,res)=>res.json({data:"Company Home!"}));
 
 router.get("/list",(req,res)=>{
-    return res.json({data:companyModel});
+    const companyData=companyModel.find();
+    return res.json({companyData});
 });
 
 //Add new Company

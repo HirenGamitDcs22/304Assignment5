@@ -25,7 +25,7 @@ router.get("/retrieve/:pname",async(req,res)=>{
     }
     const sid=product.map((p)=>p.seller_id);
     const seller=await sellerModel.find(
-        {seller_id:sid}
+        {seller_id:sid[0]}
     );
     if(seller.length===0){
         return res.json({data:"Seller not found "});
